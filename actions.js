@@ -1,3 +1,5 @@
+const matrix = require('./matrix')
+
 module.exports = function (self) {
     self.setActionDefinitions({
         matrix_action: {
@@ -17,7 +19,7 @@ module.exports = function (self) {
                 const outputId = 'hpl'
                 const inputId = `in${event.options.input}`
                 self.log('info', `Calling makeMatrixRequest with ${outputId} and ${inputId}`)
-                const result = await self.makeMatrixRequest(outputId, inputId)
+                const result = await matrix.makeMatrixRequest(self, outputId, inputId)
                 if (result) {
                     self.log('info', `Matrix updated successfully: ${outputId} -> ${inputId}`)
                 } else {
@@ -32,7 +34,7 @@ module.exports = function (self) {
                 self.log('info', 'Action triggered: Disable headphone matrix output')
                 const outputId = 'hpl'
                 self.log('info', `Calling disableMatrixOutput with ${outputId}`)
-                const result = await self.disableMatrixOutput(outputId)
+                const result = await matrix.disableMatrixOutput(self, outputId)
                 if (result) {
                     self.log('info', `Matrix output disabled successfully: ${outputId}`)
                 } else {
