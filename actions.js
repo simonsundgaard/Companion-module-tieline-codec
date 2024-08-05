@@ -10,18 +10,19 @@ module.exports = function (self) {
     self.setActionDefinitions({
         matrix_action: {
             name: 'Set matrix routing',
+            description: 'To turn off all audio on an output, simply choose no channels in the input channel field',
             options: [
                 {
                     id: 'input',
-                    type: 'dropdown',
-                    label: 'Input Channel',
+                    type: 'multidropdown',
+                    label: 'Input channel(s)',
                     choices: inputChoices,
                     default: inputChoices.length > 0 ? inputChoices[0].id : undefined,
                 },
                 {
                     id: 'output',
                     type: 'dropdown',
-                    label: 'Output Channel',
+                    label: 'Output channel',
                     choices: outputChoices,
                     default: outputChoices.length > 0 ? outputChoices[0].id : undefined,
                 },

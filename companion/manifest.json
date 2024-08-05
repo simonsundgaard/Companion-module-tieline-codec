@@ -1,5 +1,5 @@
 {
-	"id": "tieline-codec",
+	"id": "tieline-gateway",
 	"name": "Tieline",
 	"shortname": "Tieline",
 	"description": "This module controls the tieline 8 and 16ch codec. It has been developed during the Paris 2024 Olympics, so I have only implemented controlling the headphone output because I didn't dare doing anything with the outputs, because we where broadcasting on the codec constantly",
@@ -21,6 +21,6 @@
 	},
 	"legacyIds": [],
 	"manufacturer": "Tieline",
-	"products": ["Codec"],
+	"products": ["Gateway"],
 	"keywords": []
 }
