@@ -36,11 +36,11 @@ class ModuleInstance extends InstanceBase {
 			return
 		}
 	
-		this.log('info', 'Initializing module')
+		this.log('info', 'Initializing tieline gateway module')
 		try {
 			await this.authenticate()
 			await matrix.fetchMatrixFeatures(this)
-			this.log('info', `Variables after initialization: ${JSON.stringify(this.matrixVariables)}`)
+			this.log('debug', `Variables after initialization: ${JSON.stringify(this.matrixVariables)}`)
 			this.updateActions() // Move this here, after fetching matrix features
 			this.startHeartbeat()
 		} catch (error) {

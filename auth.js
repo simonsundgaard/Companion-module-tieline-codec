@@ -19,7 +19,7 @@ module.exports = {
     },
 
     async authenticate(instance) {
-        instance.log('info', 'Starting authentication process')
+        instance.log('debug', 'Starting authentication process')
         const options = {
             hostname: instance.config.host,
             port: 8080,
@@ -33,9 +33,9 @@ module.exports = {
         }
 
         try {
-            instance.log('info', `Sending initial request to ${options.hostname}`)
+            instance.log('debug', `Sending initial request to ${options.hostname}`)
             const response = await makeRequest(options)
-            instance.log('info', `Initial response status: ${response.statusCode}`)
+            instance.log('debug', `Initial response status: ${response.statusCode}`)
             
             if (response.statusCode === 401 && response.headers['www-authenticate']) {
                 const wwwAuthHeader = response.headers['www-authenticate']
@@ -45,12 +45,12 @@ module.exports = {
                 const authHeader = this.digestAuth('GET', '/assets/base/home.html', realm, nonce, instance.config.username, instance.config.password, instance.ncCounter++)
                 options.headers['Authorization'] = authHeader
 
-                instance.log('info', 'Sending authenticated request')
+                instance.log('debug', 'Sending authenticated request')
                 const authenticatedResponse = await makeRequest(options)
-                instance.log('info', `Authenticated response status: ${authenticatedResponse.statusCode}`)
+                instance.log('debug', `Authenticated response status: ${authenticatedResponse.statusCode}`)
 
                 if (authenticatedResponse.statusCode === 200) {
-                    instance.log('info', 'Authentication successful')
+                    instance.log('debug', 'Authentication successful')
                     let csrfToken = null
                     if (authenticatedResponse.headers['set-cookie']) {
                         const csrfCookie = authenticatedResponse.headers['set-cookie'].find(cookie => cookie.startsWith('csrfCookie='))

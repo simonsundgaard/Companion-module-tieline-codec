@@ -6,7 +6,7 @@ module.exports = {
     async makeMatrixRequest(instance, outputId, inputId) {
         instance.log('info', `Making matrix request: ${outputId} -> ${inputId}`)
         if (!instance.authHeader || !instance.csrfToken) {
-            instance.log('info', 'Auth header or CSRF token missing, re-authenticating')
+            instance.log('debug', 'Auth header or CSRF token missing, re-authenticating')
             if (!(await instance.authenticate())) {
                 instance.log('error', 'Re-authentication failed')
                 return false
@@ -41,14 +41,14 @@ module.exports = {
         }
 
         instance.log('info', `Sending matrix request to ${options.hostname}:${options.port}`)
-        instance.log('info', `Request headers: ${JSON.stringify(options.headers)}`)
-        instance.log('info', `Request body: ${body}`)
+        instance.log('debug', `Request headers: ${JSON.stringify(options.headers)}`)
+        instance.log('debug', `Request body: ${body}`)
 
         try {
             const response = await makeRequest(options, body)
             instance.log('info', `Matrix response status: ${response.statusCode}`)
-            instance.log('info', `Response headers: ${JSON.stringify(response.headers)}`)
-            instance.log('info', `Response body: ${response.data}`)
+            instance.log('debug', `Response headers: ${JSON.stringify(response.headers)}`)
+            instance.log('debug', `Response body: ${response.data}`)
             
             if (response.statusCode === 200) {
                 instance.log('info', `Matrix request successful: ${outputId} -> ${inputId}`)
@@ -66,7 +66,7 @@ module.exports = {
     async disableMatrixOutput(instance, outputId) {
         instance.log('info', `Disabling matrix output: ${outputId}`)
         if (!instance.authHeader || !instance.csrfToken) {
-            instance.log('info', 'Auth header or CSRF token missing, re-authenticating')
+            instance.log('debug', 'Auth header or CSRF token missing, re-authenticating')
             if (!(await instance.authenticate())) {
                 instance.log('error', 'Re-authentication failed')
                 return false
@@ -101,14 +101,14 @@ module.exports = {
         }
 
         instance.log('info', `Sending disable matrix request to ${options.hostname}:${options.port}`)
-        instance.log('info', `Request headers: ${JSON.stringify(options.headers)}`)
-        instance.log('info', `Request body: ${body}`)
+        instance.log('debug', `Request headers: ${JSON.stringify(options.headers)}`)
+        instance.log('debug', `Request body: ${body}`)
 
         try {
             const response = await makeRequest(options, body)
             instance.log('info', `Disable matrix response status: ${response.statusCode}`)
-            instance.log('info', `Response headers: ${JSON.stringify(response.headers)}`)
-            instance.log('info', `Response body: ${response.data}`)
+            instance.log('debug', `Response headers: ${JSON.stringify(response.headers)}`)
+            instance.log('debug', `Response body: ${response.data}`)
             
             if (response.statusCode === 200) {
                 instance.log('info', `Matrix output disabled successfully: ${outputId}`)
@@ -130,7 +130,7 @@ module.exports = {
     
         instance.log('info', 'Fetching matrix features')
         if (!instance.authHeader || !instance.csrfToken) {
-            instance.log('info', 'Auth header or CSRF token missing, re-authenticating');
+            instance.log('debug', 'Auth header or CSRF token missing, re-authenticating');
             if (!(await instance.authenticate())) {
                 instance.log('error', 'Re-authentication failed');
                 return false;
@@ -157,7 +157,7 @@ module.exports = {
 
         try {
             const response = await makeRequest(options);
-            instance.log('info', `Matrix features response status: ${response.statusCode}`);
+            instance.log('debug', `Matrix features response status: ${response.statusCode}`);
             
             if (response.statusCode === 200) {
                 await this.updateInputsAndOutputs(instance, response.data);
@@ -191,13 +191,13 @@ module.exports = {
                     outputs: outputs
                 };
     
-                instance.log('info', `Setting variables: ${JSON.stringify(variables)}`);
+                instance.log('debug', `Setting variables: ${JSON.stringify(variables)}`);
                 instance.setVariableValues(variables);
     
                 // Store variables in the instance for later use
                 instance.matrixVariables = variables;
     
-                instance.log('info', 'Inputs and outputs updated successfully');
+                instance.log('info', 'Inputs and outputs list updated successfully');
                 if (typeof instance.updateActions === 'function') {
                     instance.updateActions(); // Refresh actions to update dropdowns
                 }
