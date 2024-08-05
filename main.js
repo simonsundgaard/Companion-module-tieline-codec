@@ -9,6 +9,7 @@ const { getConfigFields } = require('./config')
 const auth = require('./auth')
 const { makeRequest } = require('./api')
 const matrix = require('./matrix')
+const heartbeat = require('./heartbeat')
 
 
 class ModuleInstance extends InstanceBase {
@@ -34,13 +35,13 @@ class ModuleInstance extends InstanceBase {
     }
 
 	async destroy() {
-		this.stopHeartbeat()
-		this.log('debug', 'destroy')
-	}
+        heartbeat.stopHeartbeat(this)
+        this.log('debug', 'destroy')
+    }
 
-	async configUpdated(config) {
+    async configUpdated(config) {
         this.config = config
-        await this.authenticate(this)
+        await this.authenticate()
         this.startHeartbeat()
     }
 	async authenticate() {
@@ -53,6 +54,17 @@ class ModuleInstance extends InstanceBase {
             return true
         }
         return false
+    }
+
+	startHeartbeat() {
+        heartbeat.startHeartbeat(this)
+        this.heartbeatInterval = setInterval(async () => {
+            const result = await heartbeat.sendHeartbeat(this)
+            if (result) {
+                this.authHeader = result.authHeader
+                this.csrfToken = result.csrfToken
+            }
+        }, 60000) // 60 seconds
     }
 
 	getConfigFields() {
