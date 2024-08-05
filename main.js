@@ -21,6 +21,7 @@ class ModuleInstance extends InstanceBase {
         this.nonce = null
         this.ncCounter = 1
         this.heartbeatInterval = null
+		this.lastAuthTime = null
     }
 
     async init(config) {

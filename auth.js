@@ -58,11 +58,22 @@ module.exports = {
                             csrfToken = csrfCookie.split(';')[0].split('=')[1]
                         }
                     }
+                    
+                    // Set instance properties
+                    instance.authHeader = authHeader
+                    instance.csrfToken = csrfToken
+                    instance.realm = realm
+                    instance.nonce = nonce
+                    instance.lastAuthTime = Date.now()
+
                     return { authHeader, csrfToken, realm, nonce }
                 } else {
                     instance.log('error', 'Authentication failed')
                     return null
                 }
+            } else {
+                instance.log('error', 'Unexpected response during authentication')
+                return null
             }
         } catch (error) {
             instance.log('error', 'Authentication error: ' + error.message)
