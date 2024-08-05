@@ -12,7 +12,8 @@
 		"url": "git+https://github.com/bitfocus/companion-module-tieline-gw8-16.git"
 	},
 	"dependencies": {
-		"@companion-module/base": "~1.7.0"
+		"@companion-module/base": "~1.7.0",
+		"xml2js": "^0.6.2"
 	},
 	"devDependencies": {
 		"@companion-module/tools": "^1.4.2"

@@ -24,37 +24,65 @@ class ModuleInstance extends InstanceBase {
     }
 
     async init(config) {
-        this.config = config
-        this.updateStatus(InstanceStatus.Ok)
-        this.updateActions()
-        this.updateFeedbacks()
-        this.updateVariableDefinitions()
-        this.log('info', 'Initializing module')
-        await this.authenticate()
-        this.startHeartbeat()
-    }
-
-	async destroy() {
-        heartbeat.stopHeartbeat(this)
-        this.log('debug', 'destroy')
-    }
+		this.config = config
+		this.updateStatus(InstanceStatus.Ok)
+		this.updateFeedbacks()
+		this.updateVariableDefinitions()
+	
+		if (!this.config.host || !this.config.username || !this.config.password) {
+			this.log('warn', 'Module not configured yet. Please configure the module settings.')
+			this.updateStatus(InstanceStatus.BadConfig)
+			return
+		}
+	
+		this.log('info', 'Initializing module')
+		try {
+			await this.authenticate()
+			await matrix.fetchMatrixFeatures(this)
+			this.log('info', `Variables after initialization: ${JSON.stringify(this.matrixVariables)}`)
+			this.updateActions() // Move this here, after fetching matrix features
+			this.startHeartbeat()
+		} catch (error) {
+			this.log('error', `Initialization failed: ${error.message}`)
+			this.updateStatus(InstanceStatus.ConnectionFailure)
+		}
+	}
 
     async configUpdated(config) {
-        this.config = config
-        await this.authenticate()
-        this.startHeartbeat()
-    }
+		this.config = config
+	
+		if (!this.config.host || !this.config.username || !this.config.password) {
+			this.log('warn', 'Module not fully configured. Please configure all required settings.')
+			this.updateStatus(InstanceStatus.BadConfig)
+			return
+		}
+	
+		try {
+			await this.authenticate()
+			await matrix.fetchMatrixFeatures(this)
+			this.updateActions() // Refresh actions after fetching new data
+			this.startHeartbeat()
+			this.updateStatus(InstanceStatus.Ok)
+		} catch (error) {
+			this.log('error', `Configuration update failed: ${error.message}`)
+			this.updateStatus(InstanceStatus.ConnectionFailure)
+		}
+	}
+
 	async authenticate() {
-        const result = await auth.authenticate(this)
-        if (result) {
-            this.authHeader = result.authHeader
-            this.csrfToken = result.csrfToken
-            this.realm = result.realm
-            this.nonce = result.nonce
-            return true
-        }
-        return false
-    }
+		if (!this.config.host || !this.config.username || !this.config.password) {
+			throw new Error('Module not fully configured')
+		}
+		const result = await auth.authenticate(this)
+		if (result) {
+			this.authHeader = result.authHeader
+			this.csrfToken = result.csrfToken
+			this.realm = result.realm
+			this.nonce = result.nonce
+			return true
+		}
+		throw new Error('Authentication failed')
+	}
 
 	startHeartbeat() {
         heartbeat.startHeartbeat(this)
@@ -94,6 +122,27 @@ class ModuleInstance extends InstanceBase {
     makeRequest(options, body = null) {
         return makeRequest(options, body)
     }
+
+	getVariableChoices(type) {
+		this.log('debug', `Getting variable choices for type: ${type}`);
+		try {
+			const variables = this.matrixVariables || {};
+			this.log('debug', `All variables: ${JSON.stringify(variables)}`);
+			
+			if (!variables[type] || variables[type].length === 0) {
+				this.log('warn', `${type} not initialized or empty. Returning empty array.`);
+				return [];
+			}
+	
+			const choices = variables[type].map(value => ({ id: value, label: value }));
+	
+			this.log('debug', `Choices for ${type}: ${JSON.stringify(choices)}`);
+			return choices;
+		} catch (error) {
+			this.log('error', `Error in getVariableChoices: ${error.message}`);
+			return [];
+		}
+	}
 }
 
 runEntrypoint(ModuleInstance, UpgradeScripts)

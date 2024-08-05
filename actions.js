@@ -1,46 +1,40 @@
 const matrix = require('./matrix')
 
 module.exports = function (self) {
+    self.log('debug', 'Updating actions');
+    const inputChoices = self.getVariableChoices('inputs');
+    const outputChoices = self.getVariableChoices('outputs');
+    self.log('debug', `Input choices: ${JSON.stringify(inputChoices)}`);
+    self.log('debug', `Output choices: ${JSON.stringify(outputChoices)}`);
+
     self.setActionDefinitions({
         matrix_action: {
-            name: 'Turn on input channel in headphone matrix',
+            name: 'Set matrix routing',
             options: [
                 {
                     id: 'input',
-                    type: 'number',
+                    type: 'dropdown',
                     label: 'Input Channel',
-                    default: 1,
-                    min: 1,
-                    max: 16,
+                    choices: inputChoices,
+                    default: inputChoices.length > 0 ? inputChoices[0].id : undefined,
+                },
+                {
+                    id: 'output',
+                    type: 'dropdown',
+                    label: 'Output Channel',
+                    choices: outputChoices,
+                    default: outputChoices.length > 0 ? outputChoices[0].id : undefined,
                 },
             ],
             callback: async (event) => {
-                self.log('info', `Action triggered: Input ${event.options.input}`)
-                const outputId = 'hpl'
-                const inputId = `in${event.options.input}`
-                self.log('info', `Calling makeMatrixRequest with ${outputId} and ${inputId}`)
-                const result = await matrix.makeMatrixRequest(self, outputId, inputId)
+                self.log('info', `Action triggered: Input ${event.options.input} to Output ${event.options.output}`);
+                const result = await matrix.makeMatrixRequest(self, event.options.output, event.options.input);
                 if (result) {
-                    self.log('info', `Matrix updated successfully: ${outputId} -> ${inputId}`)
+                    self.log('info', `Matrix updated successfully: ${event.options.output} -> ${event.options.input}`);
                 } else {
-                    self.log('warn', `Failed to update matrix: ${outputId} -> ${inputId}`)
+                    self.log('warn', `Failed to update matrix: ${event.options.output} -> ${event.options.input}`);
                 }
             },
         },
-        disable_matrix_output: {
-            name: 'Disable headphone matrix output',
-            options: [],
-            callback: async (event) => {
-                self.log('info', 'Action triggered: Disable headphone matrix output')
-                const outputId = 'hpl'
-                self.log('info', `Calling disableMatrixOutput with ${outputId}`)
-                const result = await matrix.disableMatrixOutput(self, outputId)
-                if (result) {
-                    self.log('info', `Matrix output disabled successfully: ${outputId}`)
-                } else {
-                    self.log('warn', `Failed to disable matrix output: ${outputId}`)
-                }
-            },
-        },
-    })
+    });
 }
